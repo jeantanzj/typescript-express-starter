@@ -1,6 +1,11 @@
 import express from 'express'
+import morgan from 'morgan'
+
 const PORT = process.env.PORT
+
 const app = express()
+
+app.use(morgan('combined'))
 
 app.get('/', (_req: express.Request, res: express.Response) => {
   return res.sendStatus(200)
