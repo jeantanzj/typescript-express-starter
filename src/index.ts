@@ -1,28 +1,27 @@
+import 'source-map-support/register'
+require('module-alias/register')
 import express from 'express'
-import morgan from 'morgan'
-
+import sequelizeLoader from '@core/loaders/sequelize.loader'
+import expressApp from '@core/loaders/app.loader'
+import logger from '@core/logger'
+import moment from 'moment-timezone'
+moment.tz('Asia/Singapore')
 const PORT = process.env.PORT || 3000
 
 const app = express()
 
-app.use(morgan('combined'))
+// HTTP server port
 
-app.get('/', (_req: express.Request, res: express.Response) => {
-  return res.sendStatus(200)
-})
+async function startServer() {
+  await sequelizeLoader()
+  logger.info('Database connected!')
+  expressApp({ app })
 
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction
-  ) => {
-    console.error(err)
-    return res.status(500).json('An error occurred')
-  }
-)
+  // Start the server by listening
+  app.listen(PORT, () => {
+    logger.info(`App started at port ${PORT}`)
+  })
+}
 
-app.listen(PORT, () => {
-  console.log(`App started at port ${PORT}`)
-})
+// Initialize and start server
+startServer().catch(console.error)
